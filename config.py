@@ -1,12 +1,14 @@
-from logging import DEBUG
-from flask.config import Config
-
 
 class Config:
     '''
     General configuration parent class
     '''
-    SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://moringa:Access@localhost/project'
+    SQLALCHEMY_DATABASE_URI='postgresql+psycopg2://moringa:moringa@localhost/project'
+    SQLALCHEMY_TRACK_MODIFICATIONS=False
+
+    @staticmethod
+    def init_app(app):
+        pass
 
 
 class ProdConfig(Config):
