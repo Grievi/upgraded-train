@@ -17,7 +17,13 @@ class Pitch(db.Model):
     id=db.Column(db.Integer,primary_key = True)
     title=db.Column(db.String(255))
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    body = db.Column(db.Text)
+    slug = db.Column(db.String(64), unique=True)
+    picture_path = db.Column(db.String(64))
     timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+    like = db.relationship('Like', backref='post', lazy='dynamic')
+    dislike = db.relationship('Dislike', backref='post', lazy='dynamic')
+    comment = db.relationship('Comment', backref='post', lazy='dynamic') 
 
     def __repr__(self):
         return f'User {self.title}'
@@ -58,3 +64,68 @@ class User(UserMixin,db.Model):
 
     def __repr__(self):
         return f'User {self.username}'
+
+class Comment(db.Model):
+    __tablename__ = 'comments'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    body = db.Column(db.Text)
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def save_comment(self):
+        db.session.add(self)
+        db.session.commit()
+
+    # get all the comments related to a single post
+    @classmethod
+    def get_comments(cls, post_id):
+        comments = Comment.query.filter_by(post_id=post_id).all()
+        return comments
+
+    # get comment author details from the author id
+    @classmethod
+    def get_comment_author(cls, user_id):
+        author = User.query.filter_by(id=user_id).first()
+        return author
+
+class Like(db.Model):
+    __tablename__ = 'likes'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def save_like(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def get_likes(cls, post_id):
+        likes = Like.query.filter_by(post_id=post_id).all()
+        return likes
+
+    @classmethod
+    def get_like_author(cls, user_id):
+        author = User.query.filter_by(id=user_id).first()
+        
+class Dislike(db.Model):
+    __tablename__ = 'dislikes'
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    post_id = db.Column(db.Integer, db.ForeignKey('posts.id'))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
+    def save_dislike(self):
+        db.session.add(self)
+        db.session.commit()
+
+    @classmethod
+    def get_dislikes(cls, post_id):
+        dislikes = Dislike.query.filter_by(post_id=post_id).all()
+        return dislikes
+
+    @classmethod
+    def get_dislike_author(cls, user_id):
+        author = User.query.filter_by(id=user_id).first()
+        return author
