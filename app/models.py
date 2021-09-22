@@ -2,6 +2,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from flask_login import UserMixin
 from . import db
 from . import login_manager
+from datetime import datetime
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -14,10 +15,12 @@ class Pitch(db.Model):
     __tablename__ = 'pitches'
 
     id=db.Column(db.Integer,primary_key = True)
-    name=db.Column(db.String(255))
-    
+    title=db.Column(db.String(255))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
+    timestamp = db.Column(db.DateTime, index=True, default=datetime.utcnow)
+
     def __repr__(self):
-        return f'User {self.name}'
+        return f'User {self.title}'
 
 class User(UserMixin,db.Model):
     __tablename__ = 'users'
