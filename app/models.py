@@ -31,8 +31,6 @@ class User(UserMixin,db.Model):
     profile_pic_path = db.Column(db.String())
     pitch=db.relationship('Pitch', backref='user', lazy="dynamic")
 
-    def __repr__(self):
-        return f'User {self.username}'
 
     @property
     def password(self):
@@ -45,3 +43,18 @@ class User(UserMixin,db.Model):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    @staticmethod
+    def get_user_by_email(email):
+        return User.query.filter_by(email=email).first()
+
+    @staticmethod
+    def get_user_by_username(username):
+        return User.query.filter_by(username=username).first()
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+
+    def __repr__(self):
+        return f'User {self.username}'
