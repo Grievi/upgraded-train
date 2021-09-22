@@ -15,8 +15,7 @@ class Pitch(db.Model):
 
     id=db.Column(db.Integer,primary_key = True)
     name=db.Column(db.String(255))
-    users=db.relationship('User',backref = 'pitch', lazy="dynamic")
-
+    
     def __repr__(self):
         return f'User {self.name}'
 
@@ -26,7 +25,8 @@ class User(UserMixin,db.Model):
     username = db.Column(db.String(255), unique=True, index=True)
     email = db.Column(db.String(255), unique=True, index=True)
     password_hash = db.Column(db.String(255))
-    pitch_id = db.Column(db.Integer, db.ForeignKey('pitches.id'))
+    profile_pic_path = db.Column(db.String())
+    pitch=db.relationship('Pitch', backref='user', lazy="dynamic")
 
     def __repr__(self):
         return f'User {self.username}'
